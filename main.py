@@ -1,9 +1,6 @@
 from javascript import require, On #pip install javascript
-from time import sleep
 from customtkinter import *
 from tkinter.messagebox import *
-
-import subprocess
 
 import configparser
 import tkinter
@@ -16,22 +13,21 @@ pathfinder = require('mineflayer-pathfinder')
 config = configparser.ConfigParser()
 config.read('config.ini')
 prefix = '$'
-bot = None
+cmds = ['exit']
 
-cmds = ['exit', 'jump', 'crawl', 'bind', 'bind load', 'bind info', 'bind stop']
-#gamemodes = {0: 'Survival', 1: 'Creative', 2: 'Adventure', 3: 'Spectator'}
+bot = None
 
 
 # Получение статистики и возврат текта
 def check_stat():
     if bot is None:
-        return f'Ник: None | Режим игры: None | Coords: None\nЗдоровье: 0 | Сытость: 0 | Кол-во опыта: 0'
+        return f'Ник: None\nЗдоровье: 0 | Сытость: 0 | Кол-во опыта: 0\nРежим игры: None | Coords: None'
     try:
         p = bot.entity.position.toString().replace(')', '').replace('(', '')
         text = f'Ник: {bot.username}\nЗдоровье: {int(bot.health)} | Сытость: {int(bot.food)} | Кол-во опыта: {bot.experience.points}\nРежим игры: {bot.game.gameMode} | Coords: {p}'
         return text
     except TypeError:
-        return f'Ник: None | Режим игры: None | Coords: None\nЗдоровье: 0 | Сытость: 0 | Кол-во опыта: 0'
+        return f'Ник: None\nЗдоровье: 0 | Сытость: 0 | Кол-во опыта: 0\nРежим игры: None | Coords: None'
 
 
 # Настройки
@@ -51,7 +47,7 @@ class RakMineSettings:
         clear_log = CTkCheckBox(master=window, variable=clear_log_var, text='Очистка чатлога после реконнекта', command=set_clear_log)
         clear_log.place(relx=0.01, rely=0.01)
 
-        #////////
+        # Loop
         window.mainloop()
 
 
@@ -59,11 +55,6 @@ class RakMineSettings:
 class RakMineMain:
     def __init__(self, window: CTk) -> None:
         self.in_game = False
-        self.nick = 'None'
-        self.health = 0
-        self.satiety = 0
-        self.gamemode = 'None'
-        self.total_exp = 0
 
         def send_message():
             global bot
@@ -76,13 +67,13 @@ class RakMineMain:
                 #if cmd not in cmds: return log(f'| [CMD] Команда "{cmd}" не найдена!')
                 if cmd == 'exit':
                     bot.quit(); bot = None; self.in_game = False
-                    log('[CMD] Бот успешно вышел из игры!')
+                    self.log('[CMD] Бот успешно вышел из игры!')
                     return cmd_input.delete(0, END)
                 
                 if cmd.startswith('move'):
                     pos = str(cmd.replace('move ', '')).split(' ')
                     if len(pos) != 3:
-                        return log('[CMD] Использование: $move x y z')
+                        return self.log('[CMD] Использование: $move x y z')
                     bot.pathfinder.setMovements(pathfinder.Movements(bot))
                     bot.pathfinder.setGoal(pathfinder.goals.GoalNear(int(pos[0]), int(pos[1]), int(pos[2]), 1))
                 
@@ -90,10 +81,6 @@ class RakMineMain:
             
             bot.chat(cmd_input.get())
             return cmd_input.delete(0, END)
-        
-
-        # Запись в chat log
-        def log(message: str): return chat_log.insert(END, message + '\n')
 
         def bot_join():
             global bot
@@ -131,13 +118,13 @@ class RakMineMain:
             if int(config.get('Settings', 'clear_chatlog')):
                 try: self.main_label.configure(text = check_stat())
                 except: pass
-                chat_log.delete(0.0, END)
+                self.chat_log.delete(0.0, END)
                 window.title(f"{nick_input.get()} | {host_input.get()}")
 
 
             @On(bot, 'error')
             def error_handler(emittter, err):
-                return log(f'| [BOT ERROR] {err}')
+                return self.log(f'| [BOT ERROR] {err}')
 
             @On(bot, 'message')
             def message_handler(emitter, message_info, *args):
@@ -145,33 +132,28 @@ class RakMineMain:
 
                 new_text = ''
                 for i in message_info.extra: new_text+=str(i.text)
-                return log(f'[MSG] {new_text}')
-            
-            @On(bot, 'new_map_save')
-            def map_handler(emitter, name, fullPath):
-                log(f'[MAP] Новая карта: {fullPath}')
-                subprocess.Popen(fullPath, shell=True)
+                return self.log(f'[MSG] {new_text}')
 
             @On(bot, 'chat')
             def message_handler(emitter, username, message, *args):
                 if message is None: return False
-                return log(f'[CHAT] {username}: {message}')
+                return self.log(f'[CHAT] {username}: {message}')
 
             @On(bot, 'spawn')
             def spawn_handle(*args):
                 self.in_game = True
-                return log(f"| [BOT INFO] Бот заспавнен на {bot.entity.position.toString()}!")
+                return self.log(f"| [BOT INFO] Бот заспавнен на {bot.entity.position.toString()}!")
             
             @On(bot, 'death')
             def spawn_handle(*args):
                 self.in_game = True
-                return log(f"| [BOT INFO] Бот помер на {bot.entity.position.toString()}!")
+                return self.log(f"| [BOT INFO] Бот помер на {bot.entity.position.toString()}!")
             
             @On(bot, "end")
             def end_handle(emitter, reason):
                 global bot
                 self.in_game = False; bot = None
-                log(f"| [BOT INFO] Бот отключен от сервера!\n| Причина: {reason}")
+                self.log(f"| [BOT INFO] Бот отключен от сервера!\n| Причина: {reason}")
                 return self.main_label.configure(text = check_stat())
             
             @On(bot, 'move')
@@ -183,7 +165,7 @@ class RakMineMain:
                 global bot
                 self.in_game = False; bot = None
                 
-                log(f"| [BOT INFO] Бот кикнут из сервера!\n| Причина: {reason}")
+                self.log(f"| [BOT INFO] Бот кикнут из сервера!\n| Причина: {reason}")
                 return self.main_label.configure(text = check_stat())
             
             @On(bot, "health")
@@ -193,13 +175,13 @@ class RakMineMain:
             
             @On(bot, "forcedMove")
             def forcedMove(*args):
-                p = bot.entity.position
                 self.in_game = True
-                log(f"| [BOT INFO] Бот телепортирован на {p.toString()}")
+                p = bot.entity.position
+                return self.log(f"| [BOT INFO] Бот телепортирован на {p.toString()}")
             
             @On(bot, 'windowOpen')
             def window_handler(emitter, window):
-                print(window)
+                return print(window)
 
 
         #bot.setControlState(control, state) | 'forward', 'back', 'left', 'right', # 'jump', 'sprint', 'sneak'
@@ -277,8 +259,8 @@ class RakMineMain:
         cmd_input = CTkEntry(master=window, width=550, placeholder_text='Введите команду или текст для отправки от лица бота')
         cmd_input.place(relx=0.6, rely=0.90, anchor=tkinter.E)
 
-        chat_log = CTkTextbox(master = window, width=750, height=420)
-        chat_log.place(relx=0.4, rely=0.19, anchor=tkinter.N)
+        self.chat_log = CTkTextbox(master = window, width=750, height=420)
+        self.chat_log.place(relx=0.4, rely=0.19, anchor=tkinter.N)
 
         join_button = CTkButton(master=window, text='Запустить', command=bot_join)
         join_button.place(relx=0.61, rely=0.14, anchor=tkinter.W)
@@ -302,10 +284,12 @@ class RakMineMain:
         sneak_button = CTkButton(master=window, text='Sneak', command=sneak_click, width=100, height=50, fg_color='#4CAF50', hover_color='#eb1043')
         sneak_button.place(relx=0.83, rely=0.55, anchor=tkinter.W)
 
-        def open_settings():
-            return RakMineSettings()
+        def open_settings(): return RakMineSettings()
         settings_button = CTkButton(master=window, text='Настройки', command=open_settings, width=80, height=35, fg_color='#ff5d00', hover_color="#ad4c13")
         settings_button.place(relx=0.065, rely=0.01, anchor=tkinter.N)
+    
+    # Запись в chat log
+    def log(self, message: str): return self.chat_log.insert(END, message + '\n')
 
 # Начало
 if __name__ == "__main__":
@@ -313,4 +297,5 @@ if __name__ == "__main__":
     window.title("RakMine")
     window.geometry('1000x620')
     RakMineMain(window=window)
+    #RakMineMain(window=window).log("текст")
     window.mainloop()
