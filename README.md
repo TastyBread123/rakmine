@@ -13,6 +13,8 @@ npm install mineflayer
 
 npm install mineflayer-maps
 
+npm install tslib
+
 pip install javascript
 
 pip install customtkinter
