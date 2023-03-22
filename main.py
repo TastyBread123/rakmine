@@ -1,9 +1,10 @@
+import configparser
+import tkinter
+
 from javascript import require, On #pip install javascript
 from customtkinter import *
 from tkinter.messagebox import *
-
-import configparser
-import tkinter
+from functools import partial
 
 mineflayer = require('mineflayer')
 pathfinder = require('mineflayer-pathfinder')
@@ -185,63 +186,14 @@ class RakMineMain:
 
 
         #bot.setControlState(control, state) | 'forward', 'back', 'left', 'right', # 'jump', 'sprint', 'sneak'
-        def w_click():
+        def control_click(control: str, button: CTkButton):
             if bot is None: return showerror('Ошибка RakMine', 'Бот не запущен на сервере!')
-            if str(w_button._fg_color) == '#4CAF50':
-                bot.setControlState('forward', True)
-                return w_button.configure(fg_color = '#eb1043')
+            if str(button._fg_color) == '#4CAF50':
+                bot.setControlState(control, True)
+                return button.configure(fg_color = '#eb1043')
             else:
-                bot.setControlState('forward', False)
-                return w_button.configure(fg_color = '#4CAF50')
-        def s_click():
-            if bot is None: return showerror('Ошибка RakMine', 'Бот не запущен на сервере!')
-            if str(s_button._fg_color) == '#4CAF50':
-                bot.setControlState('back', True)
-                return s_button.configure(fg_color = '#eb1043')
-            else:
-                bot.setControlState('back', False)
-                return s_button.configure(fg_color = '#4CAF50')
-
-        def a_click():
-            if bot is None: return showerror('Ошибка RakMine', 'Бот не запущен на сервере!')
-            if str(a_button._fg_color) == '#4CAF50':
-                bot.setControlState('left', True)
-                return a_button.configure(fg_color = '#eb1043')
-            else:
-                bot.setControlState('left', False)
-                return a_button.configure(fg_color = '#4CAF50')
-        def d_click():
-            if bot is None: return showerror('Ошибка RakMine', 'Бот не запущен на сервере!')
-            if str(d_button._fg_color) == '#4CAF50': 
-                bot.setControlState('right', True)
-                return d_button.configure(fg_color = '#eb1043')
-            else:
-                bot.setControlState('right', False)
-                return d_button.configure(fg_color = '#4CAF50')
-        def sprint_click():
-            if bot is None: return showerror('Ошибка RakMine', 'Бот не запущен на сервере!')
-            if str(sprint_button._fg_color) == '#4CAF50': 
-                bot.setControlState('sprint', True)
-                return sprint_button.configure(fg_color = '#eb1043')
-            else:
-                bot.setControlState('sprint', False)
-                return sprint_button.configure(fg_color = '#4CAF50')
-        def jump_click():
-            if bot is None: return showerror('Ошибка RakMine', 'Бот не запущен на сервере!')
-            if str(jump_button._fg_color) == '#4CAF50': 
-                bot.setControlState('jump', True)
-                return jump_button.configure(fg_color = '#eb1043')
-            else:
-                bot.setControlState('jump', False)
-                return jump_button.configure(fg_color = '#4CAF50')
-        def sneak_click():
-            if bot is None: return showerror('Ошибка RakMine', 'Бот не запущен на сервере!')
-            if str(sneak_button._fg_color) == '#4CAF50': 
-                bot.setControlState('sneak', True)
-                return sneak_button.configure(fg_color = '#eb1043')
-            else:
-                bot.setControlState('sneak', False)
-                return sneak_button.configure(fg_color = '#4CAF50')
+                bot.setControlState(control, False)
+                return button.configure(fg_color = '#4CAF50')
 
         #Основа
         self.main_label = CTkLabel(master = window, text=str(check_stat()))
@@ -268,20 +220,27 @@ class RakMineMain:
         send_button.place(relx=0.62, rely=0.90, anchor=tkinter.W)
 
         #Клавиши управления
-        w_button = CTkButton(master=window, text='W', command=w_click, width=50, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        w_button = CTkButton(master=window, text='W', width=50, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        w_button.configure(command = partial(control_click, 'forward', w_button))
         w_button.place(relx=0.85, rely=0.21, anchor=tkinter.W)
-        a_button = CTkButton(master=window, text='A', command=a_click, width=50, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        a_button = CTkButton(master=window, text='A', width=50, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        a_button.configure(command = partial(control_click, 'left', a_button))
         a_button.place(relx=0.80, rely=0.3, anchor=tkinter.W)
-        s_button = CTkButton(master=window, text='S', command=s_click, width=50, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        s_button = CTkButton(master=window, text='S', width=50, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        s_button.configure(command = partial(control_click, 'back', s_button))
         s_button.place(relx=0.85, rely=0.3, anchor=tkinter.W)
-        d_button = CTkButton(master=window, text='D', command=d_click, width=50, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        d_button = CTkButton(master=window, text='D', width=50, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        d_button.configure(command = partial(control_click, 'right', d_button))
         d_button.place(relx=0.90, rely=0.3, anchor=tkinter.W)
 
-        sprint_button = CTkButton(master=window, text='Sprint', command=sprint_click, width=100, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        sprint_button = CTkButton(master=window, text='Sprint', width=100, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        sprint_button.configure(command = partial(control_click, 'sprint', sprint_button))
         sprint_button.place(relx=0.775, rely=0.45, anchor=tkinter.W)
-        jump_button = CTkButton(master=window, text='Jump', command=jump_click, width=100, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        jump_button = CTkButton(master=window, text='Jump', width=100, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        jump_button.configure(command = partial(control_click, 'jump', jump_button))
         jump_button.place(relx=0.88, rely=0.45, anchor=tkinter.W)
-        sneak_button = CTkButton(master=window, text='Sneak', command=sneak_click, width=100, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        sneak_button = CTkButton(master=window, text='Sneak', width=100, height=50, fg_color='#4CAF50', hover_color='#eb1043')
+        sneak_button.configure(command = partial(control_click, 'sneak', sneak_button))
         sneak_button.place(relx=0.83, rely=0.55, anchor=tkinter.W)
 
         def open_settings(): return RakMineSettings()
