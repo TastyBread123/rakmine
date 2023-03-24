@@ -27,7 +27,7 @@ def check_stat():
         p = bot.entity.position.toString().replace(')', '').replace('(', '')
         text = f'Ник: {bot.username}\nЗдоровье: {int(bot.health)} | Сытость: {int(bot.food)} | Кол-во опыта: {bot.experience.points}\nРежим игры: {bot.game.gameMode} | Coords: {p}'
         return text
-    except TypeError:
+    except:
         return f'Ник: None\nЗдоровье: 0 | Сытость: 0 | Кол-во опыта: 0\nРежим игры: None | Coords: None'
 
 
