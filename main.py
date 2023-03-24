@@ -143,12 +143,14 @@ class RakMineMain:
             @On(bot, 'spawn')
             def spawn_handle(*args):
                 self.in_game = True
-                return self.log(f"| [BOT INFO] Бот заспавнен на {bot.entity.position.toString()}!")
+                try: return self.log(f"| [BOT INFO] Бот заспавнен на {bot.entity.position.toString()}!")
+                except: pass
             
             @On(bot, 'death')
             def spawn_handle(*args):
                 self.in_game = True
-                return self.log(f"| [BOT INFO] Бот помер на {bot.entity.position.toString()}!")
+                try: return self.log(f"| [BOT INFO] Бот помер на {bot.entity.position.toString()}!")
+                except: pass
             
             @On(bot, "end")
             def end_handle(emitter, reason):
@@ -177,8 +179,10 @@ class RakMineMain:
             @On(bot, "forcedMove")
             def forcedMove(*args):
                 self.in_game = True
-                p = bot.entity.position
-                return self.log(f"| [BOT INFO] Бот телепортирован на {p.toString()}")
+                try:
+                    p = bot.entity.position
+                    return self.log(f"| [BOT INFO] Бот телепортирован на {p.toString()}")
+                except: pass
             
             @On(bot, 'windowOpen')
             def window_handler(emitter, window):
