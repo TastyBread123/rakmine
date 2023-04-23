@@ -2,7 +2,7 @@
 Готовый шаблон для создания бота с интерфейсом на CustomTkinter
 
 # Описание
-![image](https://user-images.githubusercontent.com/117034601/226198136-21ace261-3137-4f4e-89dd-efb78aec0c56.png)
+![image](https://www.blast.hk/attachments/198976/)
 
 Красивый GUI интерфейс на customtkinter для бота на mineflayer
 
