@@ -1,4 +1,4 @@
-# template-mineflayer-python
+# RakMine
 Готовый шаблон для создания бота с интерфейсом на CustomTkinter
 
 # Описание
