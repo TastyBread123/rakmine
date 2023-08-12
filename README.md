@@ -15,6 +15,4 @@ cd *путь к папке*
 
 npm i
 
-pip install javascript
-
-pip install customtkinter
+pip install javascript customtkinter
