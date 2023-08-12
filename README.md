@@ -9,11 +9,11 @@
 # Требования
 node.js >= v14.0 и python >= v3.9
 
-npm install mineflayer
+# Установка
 
-npm install mineflayer-maps
+cd *путь к папке*
 
-npm install tslib
+npm i
 
 pip install javascript
 
